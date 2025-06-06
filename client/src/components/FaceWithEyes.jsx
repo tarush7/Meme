@@ -2,6 +2,12 @@ import React, { forwardRef } from 'react';
 import { motion } from 'framer-motion';
 
 const FaceWithEyes = forwardRef((props, ref) => {
+  const {
+    className,
+    eyeFill = '#fff',
+    pupilFill = '#000',
+    lineColor = '#fff',
+  } = props;
   // === pupil-tracking state ============================================
   const [eyePos, setEyePos] = React.useState({ x: 0, y: 0 });
   const containerRef = React.useRef(null);
@@ -36,11 +42,11 @@ const FaceWithEyes = forwardRef((props, ref) => {
 
   // === SVG ==============================================================
   return (
-    <div ref={containerRef} className={props.className}>
+    <div ref={containerRef} className={className}>
       <svg width="160" height="160" viewBox="0 0 160 160">
         {/* ——— big creepy eyes ——— */}
-        <circle cx="50" cy="60" r="28" fill="white" stroke="#000" strokeWidth="4" />
-        <circle cx="110" cy="60" r="28" fill="white" stroke="#000" strokeWidth="4" />
+        <circle cx="50" cy="60" r="28" fill={eyeFill} stroke={eyeFill} strokeWidth="4" />
+        <circle cx="110" cy="60" r="28" fill={eyeFill} stroke={eyeFill} strokeWidth="4" />
 
         {/* pupils that follow the cursor */}
         {[50, 110].map((cx, i) => (
@@ -49,24 +55,24 @@ const FaceWithEyes = forwardRef((props, ref) => {
             cx={cx}
             cy={60}
             r={6}
-            fill="#000"
+            fill={pupilFill}
             animate={{ x: eyePos.x * maxX, y: eyePos.y * maxY }}
             transition={prefersReducedMotion ? { duration: 0 } : springConfig}
           />
         ))}
 
         {/* ——— menacing brows ——— */}
-        <path d="M25 38 Q50 20 75 48" stroke="#000" strokeWidth="5" fill="none" />
-        <path d="M85 48 Q110 20 135 38" stroke="#000" strokeWidth="5" fill="none" />
+        <path d="M25 38 Q50 20 75 48" stroke={lineColor} strokeWidth="5" fill="none" />
+        <path d="M85 48 Q110 20 135 38" stroke={lineColor} strokeWidth="5" fill="none" />
 
         {/* ——— subtle under-eye smirk lines ——— */}
-        <path d="M38 84 Q50 74 62 82" stroke="#000" strokeWidth="3" fill="none" />
-        <path d="M98 82 Q110 74 122 84" stroke="#000" strokeWidth="3" fill="none" />
+        <path d="M38 84 Q50 74 62 82" stroke={lineColor} strokeWidth="3" fill="none" />
+        <path d="M98 82 Q110 74 122 84" stroke={lineColor} strokeWidth="3" fill="none" />
 
         {/* ——— huge Joker-style grin ——— */}
         <path
           d="M30 100 Q80 155 130 100"
-          stroke="#000"
+          stroke={lineColor}
           strokeWidth="5"
           fill="none"
           strokeLinecap="round"
@@ -93,7 +99,7 @@ const FaceWithEyes = forwardRef((props, ref) => {
               y1="100"
               x2={x}
               y2={yBottom}
-              stroke="#000"
+              stroke={lineColor}
               strokeWidth="3"
             />
           );
@@ -102,7 +108,7 @@ const FaceWithEyes = forwardRef((props, ref) => {
         {/* horizontal mid-tooth curve */}
         <path
           d="M35 120 Q80 140 125 120"
-          stroke="#000"
+          stroke={lineColor}
           strokeWidth="3"
           fill="none"
         />
