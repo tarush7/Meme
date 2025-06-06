@@ -1,0 +1,19 @@
+# node dependencies
+node_modules/
+
+# environment variables
+.env
+*.env
+
+# logs
+logs
+*.log
+npm-debug.log*
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# build outputs (if any)
+dist/
+build/
