@@ -2,6 +2,13 @@ import React, { forwardRef } from 'react';
 import { motion } from 'framer-motion';
 
 const FaceWithEyes = forwardRef((props, ref) => {
+  const {
+    className,
+    eyeFill = '#fff',
+    pupilFill = '#000',
+    lineColor = '#fff',
+    teethCount = 7,
+  } = props;
   // === pupil-tracking state ============================================
   const [eyePos, setEyePos] = React.useState({ x: 0, y: 0 });
   const containerRef = React.useRef(null);
@@ -14,6 +21,7 @@ const FaceWithEyes = forwardRef((props, ref) => {
   // === how far a pupil can wander from centre ===========================
   const maxX = 6;
   const maxY = 4;
+  const pupilBaseY = 3;
 
   // === snappy spring ====================================================
   const springConfig = {
@@ -36,37 +44,45 @@ const FaceWithEyes = forwardRef((props, ref) => {
 
   // === SVG ==============================================================
   return (
-    <div ref={containerRef} className={props.className}>
+    <div ref={containerRef} className={className}>
       <svg width="160" height="160" viewBox="0 0 160 160">
+        <defs>
+          <clipPath id="grin-clip">
+            <path d="M30 100 Q80 155 130 100" />
+          </clipPath>
+        </defs>
         {/* ——— big creepy eyes ——— */}
-        <circle cx="50" cy="60" r="28" fill="white" stroke="#000" strokeWidth="4" />
-        <circle cx="110" cy="60" r="28" fill="white" stroke="#000" strokeWidth="4" />
+        <circle cx="50" cy="60" r="28" fill={eyeFill} stroke={eyeFill} strokeWidth="4" />
+        <circle cx="110" cy="60" r="28" fill={eyeFill} stroke={eyeFill} strokeWidth="4" />
 
         {/* pupils that follow the cursor */}
-        {[50, 110].map((cx, i) => (
-          <motion.circle
-            key={i}
-            cx={cx}
-            cy={60}
-            r={6}
-            fill="#000"
-            animate={{ x: eyePos.x * maxX, y: eyePos.y * maxY }}
-            transition={prefersReducedMotion ? { duration: 0 } : springConfig}
-          />
-        ))}
+        {[50, 110].map((cx, i) => {
+          const clampedY = Math.max(0, eyePos.y);
+          return (
+            <motion.circle
+              key={i}
+              cx={cx}
+              cy={60}
+              r={6}
+              fill={pupilFill}
+              animate={{ x: eyePos.x * maxX, y: clampedY * maxY + pupilBaseY }}
+              transition={prefersReducedMotion ? { duration: 0 } : springConfig}
+            />
+          );
+        })}
 
         {/* ——— menacing brows ——— */}
-        <path d="M25 38 Q50 20 75 48" stroke="#000" strokeWidth="5" fill="none" />
-        <path d="M85 48 Q110 20 135 38" stroke="#000" strokeWidth="5" fill="none" />
+        <path d="M20 41 Q50 23 80 51" stroke={lineColor} strokeWidth="6" fill="none" />
+        <path d="M80 51 Q110 23 140 41" stroke={lineColor} strokeWidth="6" fill="none" />
 
         {/* ——— subtle under-eye smirk lines ——— */}
-        <path d="M38 84 Q50 74 62 82" stroke="#000" strokeWidth="3" fill="none" />
-        <path d="M98 82 Q110 74 122 84" stroke="#000" strokeWidth="3" fill="none" />
+        <path d="M38 84 Q50 74 62 82" stroke={lineColor} strokeWidth="3" fill="none" />
+        <path d="M98 82 Q110 74 122 84" stroke={lineColor} strokeWidth="3" fill="none" />
 
         {/* ——— huge Joker-style grin ——— */}
         <path
           d="M30 100 Q80 155 130 100"
-          stroke="#000"
+          stroke={lineColor}
           strokeWidth="5"
           fill="none"
           strokeLinecap="round"
@@ -80,32 +96,30 @@ const FaceWithEyes = forwardRef((props, ref) => {
           id="smile-curve"
         />
 
-        {/* vertical tooth separators */}
-        {Array.from({ length: 7 }).map((_, idx) => {
-          const pct = (idx + 1) / 8;            // 1/8 .. 7/8
-          const x = 30 + 100 * pct;             // map to smile width
-          // shorter lines near the edges for curved effect
-          const yBottom = 100 + Math.abs(0.5 - pct) * 30 + 10;
-          return (
-            <line
-              key={idx}
-              x1={x}
-              y1="100"
-              x2={x}
-              y2={yBottom}
-              stroke="#000"
-              strokeWidth="3"
-            />
-          );
-        })}
-
-        {/* horizontal mid-tooth curve */}
-        <path
-          d="M35 120 Q80 140 125 120"
-          stroke="#000"
-          strokeWidth="3"
-          fill="none"
-        />
+        {/* vertical tooth separators + mid line */}
+        <g clipPath="url(#grin-clip)">
+          {Array.from({ length: teethCount }).map((_, idx) => {
+            const pct = (idx + 1) / (teethCount + 1);
+            const x = 30 + 100 * pct;
+            return (
+              <line
+                key={idx}
+                x1={x}
+                y1="100"
+                x2={x}
+                y2="150"
+                stroke={lineColor}
+                strokeWidth="2"
+              />
+            );
+          })}
+          <path
+            d="M35 120 Q80 140 125 120"
+            stroke={lineColor}
+            strokeWidth="3"
+            fill="none"
+          />
+        </g>
       </svg>
     </div>
   );
