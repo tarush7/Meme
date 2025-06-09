@@ -5,6 +5,7 @@ import EndGameButton from '../components/EndGameButton';
 import CaptionBox from '../components/CaptionBox';
 import { socket } from '../socket';
 import AnimationController from '../components/AnimationController';
+import OutlineButton from '../components/OutlineButton';
 
 function RevealPhase() {
   const {
@@ -16,9 +17,15 @@ function RevealPhase() {
     room,
   } = useSelector(state => state.game);
 
-  const isReader = socket.id === captionReaderId;
+  const myId = socket.id;
+  const isReader = myId === captionReaderId;
+  const canAdvance = !isReader || !!winner;
 
   const handleNextRound = () => {
+    if (!canAdvance) {
+      alert('Select a meme before advancing!');
+      return;
+    }
     if (room) {
       socket.emit('start_round', { room });
     }
@@ -46,14 +53,13 @@ function RevealPhase() {
           {/* ✅ Show End Game button always for reader */}
           <EndGameButton room={room} />
 
-          {/* 🔁 Only show Next Round if not at final round */}
-          {round < maxRounds && (
-            <button
+          {/* 🔁 Only show Next Round if not at final round */}           {round < maxRounds && (
+            <OutlineButton
               onClick={handleNextRound}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded"
-            >
-              🔁 Next Round
-            </button>
+              disabled={!canAdvance}
+              label="Next Round"
+              icon={<span>🔁</span>}
+            />
           )}
         </div>
       )}

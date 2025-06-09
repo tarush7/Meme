@@ -7,7 +7,6 @@ function PlayerList({ players }) {
 
   return (
     <div className="mt-6 text-left">
-      <h3 className="text-lg font-semibold mb-2 text-center">👥 Players in Room</h3>
       <ul className="bg-gray-100 p-4 rounded">
         {players.map((player, index) => {
           const isReader = player.id === captionReaderId;
