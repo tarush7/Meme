@@ -2,6 +2,13 @@ import React, { forwardRef } from 'react';
 import { motion } from 'framer-motion';
 
 const FaceWithEyes = forwardRef((props, ref) => {
+  const {
+    className,
+    mood = 'neutral',
+    eyeFill = '#fff',
+    pupilFill = '#000',
+    lineColor = '#fff',
+  } = props;
   // === pupil-tracking state ============================================
   const [eyePos, setEyePos] = React.useState({ x: 0, y: 0 });
   const containerRef = React.useRef(null);
@@ -14,6 +21,7 @@ const FaceWithEyes = forwardRef((props, ref) => {
   // === how far a pupil can wander from centre ===========================
   const maxX = 6;
   const maxY = 4;
+  const pupilBaseY = 3;
 
   // === snappy spring ====================================================
   const springConfig = {
@@ -22,6 +30,21 @@ const FaceWithEyes = forwardRef((props, ref) => {
     damping: 30,
     mass: 0.5,
     restSpeed: 0.5
+  };
+
+  // ----- Brow animation variants ---------------------------------------
+  const browVariants = {
+    neutral:   { d: 'M10 46 Q45 28 80 48',   rotate: 0   },
+    angry:     { d: 'M15 58 Q45 32 75 44',   rotate: 12  },
+    surprised: { d: 'M6 34  Q45 14 86 36',   rotate: -8  },
+    happy:     { d: 'M10 42 Q45 32 80 42',   rotate: 0   },
+  };
+
+  const rightBrowVariants = {
+    neutral:   { d: 'M80 48 Q115 28 150 46',  rotate: 0   },
+    angry:     { d: 'M85 44 Q115 32 145 58',  rotate: -12 },
+    surprised: { d: 'M75 36 Q115 14 154 34',  rotate: 8   },
+    happy:     { d: 'M80 42 Q115 32 150 42',  rotate: 0   },
   };
 
   // expose updateEyes() + DOM node to parent
@@ -36,76 +59,87 @@ const FaceWithEyes = forwardRef((props, ref) => {
 
   // === SVG ==============================================================
   return (
-    <div ref={containerRef} className={props.className}>
+    <div ref={containerRef} className={className}>
       <svg width="160" height="160" viewBox="0 0 160 160">
+        <defs>
+          <filter id="neon" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+          <filter id="browShadow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="2" result="blur"/>
+            <feOffset in="blur" dy="2" result="offset"/>
+            <feMerge>
+              <feMergeNode in="offset"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+        </defs>
         {/* ——— big creepy eyes ——— */}
-        <circle cx="50" cy="60" r="28" fill="white" stroke="#000" strokeWidth="4" />
-        <circle cx="110" cy="60" r="28" fill="white" stroke="#000" strokeWidth="4" />
+        <circle cx="50" cy="60" r="28" fill={eyeFill} stroke={eyeFill} strokeWidth="4" />
+        <circle cx="110" cy="60" r="28" fill={eyeFill} stroke={eyeFill} strokeWidth="4" />
 
         {/* pupils that follow the cursor */}
-        {[50, 110].map((cx, i) => (
-          <motion.circle
-            key={i}
-            cx={cx}
-            cy={60}
-            r={6}
-            fill="#000"
-            animate={{ x: eyePos.x * maxX, y: eyePos.y * maxY }}
-            transition={prefersReducedMotion ? { duration: 0 } : springConfig}
-          />
-        ))}
-
-        {/* ——— menacing brows ——— */}
-        <path d="M25 38 Q50 20 75 48" stroke="#000" strokeWidth="5" fill="none" />
-        <path d="M85 48 Q110 20 135 38" stroke="#000" strokeWidth="5" fill="none" />
-
-        {/* ——— subtle under-eye smirk lines ——— */}
-        <path d="M38 84 Q50 74 62 82" stroke="#000" strokeWidth="3" fill="none" />
-        <path d="M98 82 Q110 74 122 84" stroke="#000" strokeWidth="3" fill="none" />
-
-        {/* ——— huge Joker-style grin ——— */}
-        <path
-          d="M30 100 Q80 155 130 100"
-          stroke="#000"
-          strokeWidth="5"
-          fill="none"
-          strokeLinecap="round"
-        />
-
-        {/* smile outline (left & right cheeks) */}
-        <path
-          d="M30 100 Q30 145 80 145 Q130 145 130 100"
-          stroke="none"
-          fill="none"
-          id="smile-curve"
-        />
-
-        {/* vertical tooth separators */}
-        {Array.from({ length: 7 }).map((_, idx) => {
-          const pct = (idx + 1) / 8;            // 1/8 .. 7/8
-          const x = 30 + 100 * pct;             // map to smile width
-          // shorter lines near the edges for curved effect
-          const yBottom = 100 + Math.abs(0.5 - pct) * 30 + 10;
+        {[50, 110].map((cx, i) => {
+          const clampedY = Math.max(0, eyePos.y);
           return (
-            <line
-              key={idx}
-              x1={x}
-              y1="100"
-              x2={x}
-              y2={yBottom}
-              stroke="#000"
-              strokeWidth="3"
+            <motion.circle
+              key={i}
+              cx={cx}
+              cy={60}
+              r={6}
+              fill={pupilFill}
+              animate={{ x: eyePos.x * maxX, y: clampedY * maxY + pupilBaseY }}
+              transition={prefersReducedMotion ? { duration: 0 } : springConfig}
             />
           );
         })}
 
-        {/* horizontal mid-tooth curve */}
-        <path
-          d="M35 120 Q80 140 125 120"
-          stroke="#000"
-          strokeWidth="3"
+        {/* —— Animated Brows (emphasised) —— */}
+        <motion.path
+          d={browVariants.neutral.d}
+          variants={browVariants}
+          animate={mood}
+          initial={false}
+          stroke={lineColor}
+          strokeWidth="10"
+          strokeLinecap="round"
+          strokeLinejoin="round"
           fill="none"
+          transformOrigin="50px 42px"
+          filter="url(#browShadow)"
+          transition={{ type: 'spring', stiffness: 140, damping: 16 }}
         />
+
+        <motion.path
+          d={rightBrowVariants.neutral.d}
+          variants={rightBrowVariants}
+          animate={mood}
+          initial={false}
+          stroke={lineColor}
+          strokeWidth="10"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+          transformOrigin="110px 42px"
+          filter="url(#browShadow)"
+          transition={{ type: 'spring', stiffness: 140, damping: 16 }}
+        />
+
+        {/* --- Neon grin --- */}
+        <path
+          d="M30 100 Q80 155 130 100"
+          stroke={lineColor}
+          strokeWidth="6"
+          fill="none"
+          strokeLinecap="round"
+          filter="url(#neon)"
+        />
+
       </svg>
     </div>
   );

@@ -2,6 +2,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { socket } from '../socket';
 import Scoreboard from '../components/Scoreboard';
 import AnimationController from '../components/AnimationController';
+import OutlineButton from '../components/OutlineButton';
 
 function GameOverScreen() {
   const winner = useSelector((state) => state.game.winner);
@@ -32,12 +33,12 @@ function GameOverScreen() {
 
       <Scoreboard players={players} scores={scores} />
 
-      <button
+      <OutlineButton
+        className="mt-6"
         onClick={handlePlayAgain}
-        className="mt-6 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded"
-      >
-        🔁 Play Again
-      </button>
+        label="Play Again"
+        icon={<span>🔁</span>}
+      />
 
       <p className="mt-4 text-sm text-gray-500 italic">
         (Sends everyone back to the Join Room form)

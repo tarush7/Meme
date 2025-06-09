@@ -1,7 +1,9 @@
 import React, { useState, useRef } from 'react';
 import { useDispatch } from 'react-redux';
+import { Gamepad } from 'lucide-react';
 import { socket } from '../socket';
 import { setMyName, setRoom as setRoomRedux } from '../features/game/gameSlice';
+import OutlineButton from './OutlineButton';
 
 const SOFT_RADIUS = 120;
 const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
@@ -104,12 +106,12 @@ export default function JoinRoomForm({ onNameChange, onRoomJoined, faceRef }) {
       </div>
 
       {/* ----- Row 2 ----- */}
-      <button
-        className="w-full py-2 rounded bg-purple-600 hover:bg-purple-700 text-white font-semibold"
+      <OutlineButton
+        className="w-full"
         onClick={handleJoin}
-      >
-        Join Room 🎮
-      </button>
+        label="Join Room"
+        icon={<Gamepad className="w-5 h-5" />}
+      />
     </div>
   );
 }

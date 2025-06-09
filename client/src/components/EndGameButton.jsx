@@ -1,20 +1,22 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
+import { Ban } from 'lucide-react';
 import { socket } from '../socket';
+import OutlineButton from './OutlineButton';
 
-function EndGameButton({ room }) {
+function EndGameButton({ room, className = '' }) {
   const captionReaderId = useSelector((state) => state.game.captionReaderId);
   const isReader = socket.id === captionReaderId;
 
   if (!isReader) return null;
 
   return (
-    <button
+    <OutlineButton
       onClick={() => socket.emit('force_end_game', { room })}
-      className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded mt-4"
-    >
-      🛑 End Game
-    </button>
+      label="End Game"
+      icon={<Ban className="w-5 h-5" />}
+      className={className}
+    />
   );
 }
 
