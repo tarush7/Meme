@@ -25,19 +25,6 @@ function MemePhase() {
         maxRounds={maxRounds}
       />
 
-      {myName && (
-        <p className="mt-2 text-sm text-gray-600 italic">
-          You are: <span className="font-semibold">{myName}</span>
-        </p>
-      )}
-
-      {socket.id === captionReaderId && (
-        <p className="mt-2 text-yellow-600 italic font-medium">
-          👑 You are the reader this round. Others will choose memes.
-        </p>
-      )}
-
-
       <MemeHand />
     </div>
   );

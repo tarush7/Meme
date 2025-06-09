@@ -8,6 +8,14 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
     "./src/index.css",
   ],
+  theme: {
+    extend: {
+      fontFamily: {
+        heading: ['"Chakra Petch"', 'sans-serif'],
+        sans: ['Inter', 'sans-serif'],
+      },
+    },
+  },
   plugins: [daisyui],
   daisyui: {
     themes: [
